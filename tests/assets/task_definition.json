@@ -1,0 +1,86 @@
+{
+  "taskDefinition": {
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:123456789012:task-definition/myapp-prod:209",
+    "containerDefinitions": [
+      {
+        "name": "application",
+        "image": "123456789012.dkr.ecr.eu-west-1.amazonaws.com/myapp:026b1908ccf67693d73061932325c6aca40a62e8",
+        "cpu": 3968,
+        "memory": 7168,
+        "portMappings": [
+          {
+            "containerPort": 8080,
+            "hostPort": 8080,
+            "protocol": "tcp"
+          },
+          {
+            "containerPort": 8085,
+            "hostPort": 8085,
+            "protocol": "tcp"
+          }
+        ],
+        "essential": true,
+        "environment": [],
+        "mountPoints": [],
+        "volumesFrom": [],
+        "linuxParameters": {
+          "initProcessEnabled": true
+        },
+        "secrets": [],
+        "dockerLabels": {
+          "service": "myapp"
+        },
+        "logConfiguration": {
+          "logDriver": "journald",
+          "options": {
+            "labels": "service"
+          }
+        }
+      }
+    ],
+    "family": "myapp-prod",
+    "taskRoleArn": "arn:aws:iam::123456789012:role/myapp_task_role_mRE5pC",
+    "executionRoleArn": "arn:aws:iam::123456789012:role/myapp_role_mRE5pC",
+    "networkMode": "awsvpc",
+    "revision": 209,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+      {
+        "name": "com.amazonaws.ecs.capability.ecr-auth"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+      },
+      {
+        "name": "ecs.capability.secrets.asm.environment-variables"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.logging-driver.journald"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.task-iam-role"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.25"
+      },
+      {
+        "name": "ecs.capability.execution-role-ecr-pull"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+      },
+      {
+        "name": "ecs.capability.task-eni"
+      }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+      "EC2"
+    ],
+    "requiresCompatibilities": [
+      "EC2"
+    ]
+  },
+  "tags": []
+}

@@ -1,0 +1,172 @@
+{
+  "taskDefinition": {
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:012345678901:task-definition/my-service:1247",
+    "containerDefinitions": [
+      {
+        "name": "application",
+        "image": "012345678901.dkr.ecr.eu-west-1.amazonaws.com/service:7ad11d8b5660d768a96609e6ed0a2420187d08e3",
+        "cpu": 1500,
+        "memory": 2048,
+        "portMappings": [
+          {
+            "containerPort": 8080,
+            "hostPort": 8080,
+            "protocol": "tcp"
+          }
+        ],
+        "essential": true,
+        "environment": [],
+        "mountPoints": [],
+        "volumesFrom": [],
+        "linuxParameters": {
+          "initProcessEnabled": false
+        },
+        "secrets": [],
+        "dockerLabels": {},
+        "logConfiguration": {
+          "logDriver": "journald",
+          "options": {
+            "labels": "service"
+          }
+        }
+      },
+      {
+        "name": "scheduler",
+        "image": "012345678901.dkr.ecr.eu-west-1.amazonaws.com/service:7ad11d8b5660d768a96609e6ed0a2420187d08e3",
+        "cpu": 512,
+        "memory": 1024,
+        "portMappings": [],
+        "essential": true,
+        "command": [
+          "scheduler"
+        ],
+        "environment": [],
+        "mountPoints": [],
+        "volumesFrom": [],
+        "linuxParameters": {
+          "initProcessEnabled": false
+        },
+        "secrets": [],
+        "dockerLabels": {
+          "com.datadoghq.ad.check_names": "['service']",
+          "com.datadoghq.ad.init_configs": "{}",
+          "com.datadoghq.ad.instances": "[{'url': '%%host%%'}]",
+          "com.datadoghq.tags.env": "prod",
+          "com.datadoghq.tags.service": "service",
+          "service": "service"
+        },
+        "logConfiguration": {
+          "logDriver": "journald",
+          "options": {
+            "labels": "service"
+          }
+        }
+      },
+      {
+        "name": "worker",
+        "image": "012345678901.dkr.ecr.eu-west-1.amazonaws.com/service:7ad11d8b5660d768a96609e6ed0a2420187d08e3",
+        "cpu": 1024,
+        "memory": 8192,
+        "portMappings": [],
+        "essential": true,
+        "command": [
+          "worker"
+        ],
+        "environment": [],
+        "mountPoints": [],
+        "volumesFrom": [],
+        "linuxParameters": {
+          "initProcessEnabled": false
+        },
+        "secrets": [],
+        "dockerLabels": {
+          "com.datadoghq.ad.check_names": "['service']",
+          "com.datadoghq.ad.init_configs": "{}",
+          "com.datadoghq.ad.instances": "[{'url': '%%host%%'}]",
+          "com.datadoghq.tags.env": "prod",
+          "com.datadoghq.tags.service": "service",
+          "service": "service"
+        },
+        "logConfiguration": {
+          "logDriver": "journald",
+          "options": {
+            "labels": "service"
+          }
+        }
+      },
+      {
+        "name": "flower",
+        "image": "012345678901.dkr.ecr.eu-west-1.amazonaws.com/service:7ad11d8b5660d768a96609e6ed0a2420187d08e3",
+        "cpu": 512,
+        "memory": 1024,
+        "portMappings": [],
+        "essential": true,
+        "command": [
+          "flower"
+        ],
+        "environment": [],
+        "mountPoints": [],
+        "volumesFrom": [],
+        "linuxParameters": {
+          "initProcessEnabled": false
+        },
+        "secrets": [],
+        "dockerLabels": {
+          "com.datadoghq.ad.check_names": "['service']",
+          "com.datadoghq.ad.init_configs": "{}",
+          "com.datadoghq.ad.instances": "[{'url': '%%host%%'}]",
+          "com.datadoghq.tags.env": "prod",
+          "com.datadoghq.tags.service": "service",
+          "service": "service"
+        },
+        "logConfiguration": {
+          "logDriver": "journald",
+          "options": {
+            "labels": "service"
+          }
+        }
+      }
+    ],
+    "family": "my-service",
+    "taskRoleArn": "arn:aws:iam::012345678901:role/service_task_role_KsrTXq",
+    "executionRoleArn": "arn:aws:iam::012345678901:role/service_role_KsrTXq",
+    "networkMode": "awsvpc",
+    "revision": 1247,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+      {
+        "name": "com.amazonaws.ecs.capability.ecr-auth"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+      },
+      {
+        "name": "ecs.capability.secrets.asm.environment-variables"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.logging-driver.journald"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.task-iam-role"
+      },
+      {
+        "name": "ecs.capability.execution-role-ecr-pull"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+      },
+      {
+        "name": "ecs.capability.task-eni"
+      }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+      "EC2"
+    ],
+    "requiresCompatibilities": [
+      "EC2"
+    ]
+  },
+  "tags": []
+}
