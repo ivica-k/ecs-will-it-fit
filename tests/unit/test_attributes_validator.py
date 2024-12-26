@@ -3,7 +3,7 @@ import unittest
 from tests.constants import just_enough_attributes, all_attributes
 from tests.helpers import get_cluster, get_service, get_task_definition
 from willy.exceptions import MissingECSAttributeException
-from willy.models import TaskDefinition, Cluster, Service, Attribute
+from willy.models import TaskDefinition, Cluster, Service, Attribute, ContainerInstance
 from willy.validators import AttributesValidator
 
 
@@ -440,7 +440,213 @@ class TestAttributesValidator(unittest.TestCase):
             cpu=128,
             memory=128,
             num_containers=num_containers,
-            requires_attributes=[],
+            placement_constraints=[
+                Attribute.parse_obj(elem) for elem in placement_constraints
+            ],
+        )
+        service: Service = get_service(
+            desired_count=desired_count, task_definition=task_definition
+        )
+        service.task_definition = task_definition
+
+        with self.assertRaises(MissingECSAttributeException) as context:
+            AttributesValidator(service=service, cluster=cluster).validate()
+
+        verbose_exception = context.exception.verbose_message
+        attribute_names = [
+            Attribute.parse_obj(elem).name for elem in placement_constraints
+        ]
+
+        # assert that all attributes are included in the verbose message shown to the user
+        for attr_name in attribute_names:
+            self.assertIn(attr_name, verbose_exception)
+
+    @parameterized.expand(
+        [
+            (
+                "two nodes one container one instance type correct",
+                2,
+                1,
+                1,
+                [
+                    {"name": "ecs.instance-type", "value": "t4.large"},
+                ],
+                [
+                    {"name": "ecs.instance-type", "value": "t2.small"},
+                ],
+                [
+                    {
+                        "type": "memberOf",
+                        "expression": "attribute:ecs.instance-type in [t2.small, t3.small]",
+                    }
+                ],  # instance type in the cluster is t2.small
+            ),
+            (
+                "one node one container one AZ correct",
+                2,
+                1,
+                1,
+                [
+                    {"name": "ecs.availability-zone", "value": "us-west-1a"},
+                ],
+                [
+                    {"name": "ecs.availability-zone", "value": "eu-central-1a"},
+                ],
+                [
+                    {
+                        "type": "memberOf",
+                        "expression": "attribute:ecs.availability-zone in [us-east-1a, us-east-1b, eu-central-1a]",
+                    }
+                ],
+            ),
+            (
+                "one node one container one EC2 ID correct",
+                2,
+                1,
+                1,
+                [
+                    {"name": "ec2InstanceId", "value": "i-defg5678"},
+                ],
+                [
+                    {"name": "ec2InstanceId", "value": "i-abcd1234"},
+                ],
+                [
+                    {
+                        "type": "memberOf",
+                        "expression": "attribute:ec2InstanceId in ['i-abcd1234', 'i-wxyx7890']",
+                    }
+                ],
+            ),
+        ]
+    )
+    def test_service_fits_on_a_cluster_with_list_attributes(
+        self,
+        name: str,
+        num_nodes: int,
+        num_containers: int,
+        desired_count: int,
+        cluster_attributes: list,
+        one_node_attributes: list,
+        placement_constraints: list,
+    ):
+        cluster: Cluster = get_cluster(
+            cpu=128,
+            memory=128,
+            attributes=cluster_attributes,
+            ports=[],
+            num_nodes=num_nodes,
+        )
+
+        # create container instances with attributes different from other container instances.
+        # these CIs with correct attributes, paired with placement constraints set on the task definition verifies
+        # that the service using this task definition can be placed on these special container instances
+        ci_with_correct_attributes = []
+        for _ in range(num_nodes):
+            ci_with_correct_attributes.append(
+                ContainerInstance(
+                    # "dynamic" ARN so that instances are not considered to be the same
+                    arn=f"arn:aws:ecs:eu-west-1:123456789012:container-instance/cluster-prod/47dcb64{_}",
+                    cpu_remaining=128,
+                    cpu_total=8192,
+                    memory_remaining=256,
+                    memory_total=15742,
+                    attributes=one_node_attributes,
+                    instance_id="abc-222",
+                )
+            )
+
+        cluster.container_instances.extend(ci_with_correct_attributes)
+
+        task_definition: TaskDefinition = get_task_definition(
+            cpu=128,
+            memory=128,
+            num_containers=num_containers,
+            placement_constraints=[
+                Attribute.parse_obj(elem) for elem in placement_constraints
+            ],
+        )
+
+        service: Service = get_service(
+            desired_count=desired_count, task_definition=task_definition
+        )
+        service.task_definition = task_definition
+
+        result = AttributesValidator(service=service, cluster=cluster).validate()
+
+        self.assertTrue(result.success)
+
+        # assert that valid instances are the same as container instances with the correct attribute(s) set
+        self.assertEqual(result.valid_instances, ci_with_correct_attributes)
+
+    @parameterized.expand(
+        [
+            (
+                "two nodes one container instance type wrong",
+                2,
+                1,
+                1,
+                [
+                    {"name": "ecs.instance-type", "value": "t4.large"},
+                ],
+                [
+                    {
+                        "type": "memberOf",
+                        "expression": "attribute:ecs.instance-type in [t2.small, t3.small]",
+                    }
+                ],  # instance type in the cluster is t2.small
+            ),
+            (
+                "one node one container AZs wrong",
+                2,
+                1,
+                1,
+                [
+                    {"name": "ecs.availability-zone", "value": "us-west-1a"},
+                ],
+                [
+                    {
+                        "type": "memberOf",
+                        "expression": "attribute:ecs.availability-zone in [us-east-1a, us-east-1b, eu-central-1a]",
+                    }
+                ],
+            ),
+            (
+                "one node one container EC2 ID wrong",
+                2,
+                1,
+                1,
+                [
+                    {"name": "ec2InstanceId", "value": "i-defg5678"},
+                ],
+                [
+                    {
+                        "type": "memberOf",
+                        "expression": "attribute:ec2InstanceId in ['i-abcd1234', 'i-wxyx7890']",
+                    }
+                ],
+            ),
+        ]
+    )
+    def test_service_does_not_fit_on_a_cluster_with_builtin_attributes_placement_constraints(
+        self,
+        name: str,
+        num_nodes: int,
+        num_containers: int,
+        desired_count: int,
+        cluster_attributes: list,
+        placement_constraints: list,
+    ):
+        cluster: Cluster = get_cluster(
+            cpu=128,
+            memory=128,
+            attributes=cluster_attributes,
+            ports=[],
+            num_nodes=num_nodes,
+        )
+        task_definition: TaskDefinition = get_task_definition(
+            cpu=128,
+            memory=128,
+            num_containers=num_containers,
             placement_constraints=[
                 Attribute.parse_obj(elem) for elem in placement_constraints
             ],

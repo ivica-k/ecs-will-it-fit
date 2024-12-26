@@ -51,9 +51,11 @@ class Service(BaseModel):
 
     @property
     def requires_attributes(self) -> List[Attribute]:
-        return (
-            self.task_definition.requires_attributes
-            + self.task_definition.placement_constraints
-            if self.task_definition
-            else self.requires_attributes
-        )
+        return self.task_definition.requires_attributes if self.task_definition.requires_attributes else self.task_definition.placement_constraints
+
+        # return (
+        #     self.task_definition.requires_attributes
+        #     # + self.task_definition.placement_constraints
+        #     if self.task_definition
+        #     else self.requires_attributes
+        # )

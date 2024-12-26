@@ -17,6 +17,7 @@ the ECS scheduler performs while selecting suitable container instances for your
   * [Caveats and known limitations](#caveats-and-known-limitations)
     * [Mimicking](#mimicking)
     * [Speed vs. accuracy](#speed-vs-accuracy)
+    * [Task placement constraints](#task-placement-constraints)
 <!-- TOC -->
 
 ## Usage examples
@@ -78,13 +79,13 @@ When Amazon ECS places tasks, it uses the following process to select container 
 
 `willy` implements a validator for each of the steps listed above
 
-| Identify the container instances that satisfy the... | `willy` feature      | Implemented?       | Has tests?         |
-|------------------------------------------------------|----------------------|--------------------|--------------------|
-| CPU requirements                                     | CPU validator        | :white_check_mark: | :white_check_mark: |
-| Memory requirements                                  | Memory validator     | :white_check_mark: | :white_check_mark: |
-| Port requirements                                    | Network validator    | :white_check_mark: | :x:                |
-| GPU requirements                                     | Attributes validator | :x:                | :x:                |
-| Task placement constraints                           | Attributes validator | :x:                | :x:                |
+| Identify the container instances that satisfy the... | `willy` feature      | Implemented?                                                  | Has tests?         |
+|------------------------------------------------------|----------------------|---------------------------------------------------------------|--------------------|
+| CPU requirements                                     | CPU validator        | :white_check_mark:                                            | :white_check_mark: |
+| Memory requirements                                  | Memory validator     | :white_check_mark:                                            | :white_check_mark: |
+| Port requirements                                    | Network validator    | :white_check_mark:                                            | :x:                |
+| GPU requirements                                     | Attributes validator | :x:                                                           | :x:                |
+| Task placement constraints                           | Attributes validator | :white_check_mark:<sup>[2](#task-placement-constraints)</sup> | :white_check_mark: |
 
 ## Caveats and known limitations
 
@@ -100,3 +101,23 @@ process from observations made while scheduling services on ECS.
 `willy` perform its checks at a point in time and its answer represents the possibility to fit all the tasks in your
 service on the cluster _at that time_. All tasks might fit on the cluster five seconds later, depending on the state of
 the cluster and `willy` can't predict that.
+
+### Task placement constraints
+
+Implementation of all [operators supported by ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-query-language.html)
+is not complete.
+
+| Operator               | Description                | Implemented?       |
+|------------------------|----------------------------|--------------------|
+| ==, equals             | String equality            | :white-check-mark: |
+| !=, not_equals         | String inequality          | :x:                |
+| >, greater_than        | Greater than               | :x:                |
+| >=, greater_than_equal | Greater than or equal to   | :x:                |
+| <, less_than           | Less than                  | :x:                |
+| <=, less_than_equal    | Less than or equal to      | :x:                |
+| exists                 | Subject exists             | :white-check-mark: |
+| !exists, not_exists    | Subject doesn't exist      | :x:                |
+| in                     | Value in argument list     | :white-check-mark: |
+| !in, not_in            | Value not in argument list | :x:                |
+| =~, matches            | Pattern match              | :x:                |
+| !~, not_matches        | Pattern mismatch           | :x:                |

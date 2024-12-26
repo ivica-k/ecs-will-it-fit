@@ -1,8 +1,7 @@
-from typing import List, Dict, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
-from tests.constants import all_attributes
 from .container import Container
 from .attribute import Attribute
 
@@ -17,9 +16,7 @@ def _port_range_to_range(port_range: str):
 
 def _parse_ports(container: dict) -> (List[int], List[int]):
     ports_tcp = []
-    ports_udp = (
-        []
-    )
+    ports_udp = []
 
     for mapping in container.get("portMappings"):  # TODO: this can also be a range
         if mapping.get("protocol") == "tcp":
@@ -90,9 +87,19 @@ class TaskDefinition(BaseModel):
             attributes_from_constraints = []
 
             for constraint in self["taskDefinition"]["placementConstraints"]:
-                attributes_from_constraints.append(Attribute.parse_obj(constraint))
+                if "[" in constraint.get("expression") and "]" in constraint.get(
+                    "expression"
+                ):
+                    attributes_from_constraints.extend(
+                        Attribute.parse_multiple(constraint.get("expression"))
+                    )
+                else:
+                    attributes_from_constraints.append(Attribute.parse_obj(constraint))
 
-            found_attributes = attributes + attributes_from_constraints
+            # found_attributes = attributes + attributes_from_constraints
+            attributes.extend(
+                attr for attr in attributes_from_constraints if attr not in attributes
+            )
 
         except KeyError:
             found_attributes = []
@@ -101,7 +108,7 @@ class TaskDefinition(BaseModel):
             name=self["taskDefinition"]["taskDefinitionArn"].split("/")[1],
             arn=self["taskDefinition"]["taskDefinitionArn"],
             containers=containers,
-            requires_attributes=found_attributes,
+            requires_attributes=attributes,
             placement_constraints=attributes_from_constraints,
             ports=[elem.all_ports for elem in containers][0],
             cpu=cpu,

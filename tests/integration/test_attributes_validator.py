@@ -1,11 +1,7 @@
-import json
 import unittest
 from copy import copy
 
-from tests.constants import just_enough_attributes, all_attributes
-from tests.helpers import get_cluster, get_service, get_task_definition
 from willy.exceptions import MissingECSAttributeException
-from willy.models import TaskDefinition, Cluster, Service
 from willy.validators import AttributesValidator
 
 from tests.helpers import (
@@ -197,7 +193,7 @@ class TestAttributesValidator(unittest.TestCase):
                         "type": "memberOf",
                         "expression": "attribute:ecs.subnet-id in SUBNETS_PLACEHOLDER",
                     }
-                ],  # 1.17 and 1.44 at time of writing
+                ],
             ),
             (
                 "two replicas ec2 instance type matches",
