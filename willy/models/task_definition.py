@@ -2,8 +2,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from .container import Container
 from .attribute import Attribute
+from .container import Container
 
 
 def _port_range_to_range(port_range: str):

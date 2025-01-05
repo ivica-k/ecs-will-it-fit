@@ -1,13 +1,12 @@
 import unittest
 
+from parameterized import parameterized
+
 from tests.constants import just_enough_attributes, all_attributes
 from tests.helpers import get_cluster, get_service, get_task_definition
 from willy.exceptions import MissingECSAttributeException
 from willy.models import TaskDefinition, Cluster, Service, Attribute, ContainerInstance
 from willy.validators import AttributesValidator
-
-
-from parameterized import parameterized
 
 
 class TestAttributesValidator(unittest.TestCase):

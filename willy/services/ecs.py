@@ -1,8 +1,9 @@
-from willy.models import Cluster, TaskDefinition, ContainerInstance, Service
-from typing import List
 from sys import exit
+from typing import List
 
 import boto3
+
+from willy.models import Cluster, TaskDefinition, ContainerInstance, Service
 
 
 class ECSService:

@@ -1,5 +1,5 @@
-from willy.models import Service, Cluster, ValidatorResult
 from willy.exceptions import NoPortsAvailableException
+from willy.models import Service, Cluster, ValidatorResult
 
 
 class NetworkValidator:

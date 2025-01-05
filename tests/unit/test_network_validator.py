@@ -1,6 +1,8 @@
 import unittest
 from typing import List
 
+from parameterized import parameterized
+
 from tests.helpers import (
     get_cluster,
     get_service,
@@ -10,9 +12,6 @@ from tests.helpers import (
 from willy.exceptions import NoPortsAvailableException
 from willy.models import TaskDefinition, Cluster, Service
 from willy.validators import NetworkValidator
-
-
-from parameterized import parameterized
 
 
 class TestNetworkValidator(unittest.TestCase):

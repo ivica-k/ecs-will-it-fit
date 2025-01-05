@@ -1,14 +1,6 @@
-import boto3
 from sys import exit
 
-from willy.models import Service, Cluster, ValidatorResult
-from willy.services import ECSService
-from willy.validators import (
-    CPUValidator,
-    MemoryValidator,
-    AttributesValidator,
-    NetworkValidator,
-)
+import boto3
 
 from willy.exceptions import (
     NotEnoughCPUException,
@@ -16,8 +8,14 @@ from willy.exceptions import (
     MissingECSAttributeException,
     NoPortsAvailableException,
 )
-
-from textwrap import dedent
+from willy.models import ValidatorResult
+from willy.services import ECSService
+from willy.validators import (
+    CPUValidator,
+    MemoryValidator,
+    AttributesValidator,
+    NetworkValidator,
+)
 
 
 # def will_it_fit(service: Service, cluster: Cluster):

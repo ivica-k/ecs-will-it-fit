@@ -2,9 +2,6 @@ import unittest
 
 from parameterized import parameterized
 
-
-from willy.validators import MemoryValidator
-from willy.exceptions import NotEnoughMemoryException
 from tests.helpers import (
     get_ecs_service,
     create_integration_test_resources,
@@ -12,7 +9,9 @@ from tests.helpers import (
     wait_until_service_inactive,
     get_infra_config,
 )
+from willy.exceptions import NotEnoughMemoryException
 from willy.services.ecs_client import get_ecs_client
+from willy.validators import MemoryValidator
 
 
 class TestMemoryValidator(unittest.TestCase):

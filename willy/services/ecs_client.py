@@ -10,8 +10,7 @@ def get_ecs_client():
         return ECS_CLIENT
 
     else:
-        session = boto3.session.Session(
-        )
+        session = boto3.session.Session()
         ECS_CLIENT = session.client("ecs")
 
         return ECS_CLIENT

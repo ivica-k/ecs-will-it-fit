@@ -1,8 +1,7 @@
 import unittest
 from copy import copy
 
-from willy.exceptions import MissingECSAttributeException
-from willy.validators import AttributesValidator
+from parameterized import parameterized
 
 from tests.helpers import (
     get_ecs_service,
@@ -10,10 +9,9 @@ from tests.helpers import (
     wait_until_service_stable,
     get_infra_config,
 )
+from willy.exceptions import MissingECSAttributeException
 from willy.services.ecs_client import get_ecs_client
-
-
-from parameterized import parameterized
+from willy.validators import AttributesValidator
 
 
 class TestAttributesValidator(unittest.TestCase):

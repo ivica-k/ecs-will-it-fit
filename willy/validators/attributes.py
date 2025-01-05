@@ -1,3 +1,7 @@
+import re
+from typing import List
+
+from willy.exceptions import MissingECSAttributeException
 from willy.models import (
     Cluster,
     ValidatorResult,
@@ -5,10 +9,6 @@ from willy.models import (
     Service,
     Attribute,
 )
-from willy.exceptions import MissingECSAttributeException
-import re
-
-from typing import List
 
 VERSION_REGEX = r"(.*?)(\d\.\d{1,})"
 SQUARE_BRACKETS_REGEX = r"[\[\]]"

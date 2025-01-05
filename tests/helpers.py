@@ -198,7 +198,7 @@ def register_task_definition(
         cpu=f"{cpu}",
         placementConstraints=placement_constraints,
     )
-    a = 2
+
     return f'{response["taskDefinition"]["family"]}:{response["taskDefinition"]["revision"]}'
 
 

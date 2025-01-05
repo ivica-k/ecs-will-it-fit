@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-from typing import Optional, Union
 import re
+from typing import Optional, Union
+
+from pydantic import BaseModel
 
 
 class Attribute(BaseModel):

@@ -31,7 +31,8 @@ class TestTaskDefinitionModel(unittest.TestCase):
         container_cpu = 0
 
         attributes_json = [
-            elem.model_dump(exclude_none=True)
+            # only 'name' is read from the attribute model to easily compare them with dictionaries below
+            {"name": elem.model_dump(exclude_none=True).get("name")}
             for elem in task_def_model.requires_attributes
         ]
 

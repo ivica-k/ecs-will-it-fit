@@ -2,15 +2,15 @@ import unittest
 
 from parameterized import parameterized
 
-from willy.validators import CPUValidator
-from willy.exceptions import NotEnoughCPUException
 from tests.helpers import (
     get_ecs_service,
     create_integration_test_resources,
     wait_until_service_stable,
     get_infra_config,
 )
+from willy.exceptions import NotEnoughCPUException
 from willy.services.ecs_client import get_ecs_client
+from willy.validators import CPUValidator
 
 
 class TestCPUValidator(unittest.TestCase):

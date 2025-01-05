@@ -1,5 +1,5 @@
-from willy.models import TaskDefinition, Cluster, ValidatorResult, Service
 from willy.exceptions import NotEnoughCPUException
+from willy.models import Cluster, ValidatorResult, Service
 
 
 class CPUValidator:
