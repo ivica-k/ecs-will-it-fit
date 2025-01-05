@@ -109,15 +109,15 @@ is not complete.
 
 | Operator               | Description                | Implemented?       |
 |------------------------|----------------------------|--------------------|
-| ==, equals             | String equality            | :white-check-mark: |
+| ==, equals             | String equality            | :white_check_mark: |
 | !=, not_equals         | String inequality          | :x:                |
 | >, greater_than        | Greater than               | :x:                |
 | >=, greater_than_equal | Greater than or equal to   | :x:                |
 | <, less_than           | Less than                  | :x:                |
 | <=, less_than_equal    | Less than or equal to      | :x:                |
-| exists                 | Subject exists             | :white-check-mark: |
+| exists                 | Subject exists             | :white_check_mark: |
 | !exists, not_exists    | Subject doesn't exist      | :x:                |
-| in                     | Value in argument list     | :white-check-mark: |
+| in                     | Value in argument list     | :white_check_mark: |
 | !in, not_in            | Value not in argument list | :x:                |
 | =~, matches            | Pattern match              | :x:                |
 | !~, not_matches        | Pattern mismatch           | :x:                |
