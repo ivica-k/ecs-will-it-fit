@@ -43,7 +43,11 @@ class TestMemoryValidator(unittest.TestCase):
         )
         service.task_definition = task_definition
 
-        result = MemoryValidator(service=service, cluster=cluster).validate()
+        result = MemoryValidator().validate(
+            service=service,
+            cluster=cluster,
+            container_instances=cluster.container_instances,
+        )
 
         self.assertTrue(result.success)
 
@@ -78,7 +82,11 @@ class TestMemoryValidator(unittest.TestCase):
         service.task_definition = task_definition
 
         with self.assertRaises(NotEnoughMemoryException):
-            MemoryValidator(service=service, cluster=cluster).validate()
+            MemoryValidator().validate(
+                service=service,
+                cluster=cluster,
+                container_instances=cluster.container_instances,
+            )
 
     @parameterized.expand(
         [
@@ -111,4 +119,8 @@ class TestMemoryValidator(unittest.TestCase):
         service.task_definition = task_definition
 
         with self.assertRaises(NotEnoughMemoryException):
-            MemoryValidator(service=service, cluster=cluster).validate()
+            MemoryValidator().validate(
+                service=service,
+                cluster=cluster,
+                container_instances=cluster.container_instances,
+            )

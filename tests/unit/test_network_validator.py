@@ -109,7 +109,11 @@ class TestNetworkValidator(unittest.TestCase):
         )
         service.task_definition = task_definition
 
-        result = NetworkValidator(service=service, cluster=cluster).validate()
+        result = NetworkValidator().validate(
+            service=service,
+            cluster=cluster,
+            container_instances=cluster.container_instances,
+        )
 
         self.assertTrue(result.success)
 
@@ -208,7 +212,11 @@ class TestNetworkValidator(unittest.TestCase):
         service.task_definition = task_definition
 
         with self.assertRaises(NoPortsAvailableException):
-            NetworkValidator(service=service, cluster=cluster).validate()
+            NetworkValidator().validate(
+                service=service,
+                cluster=cluster,
+                container_instances=cluster.container_instances,
+            )
 
     def test_task_def_with_port_range_produces_a_valid_model(self):
         # task definition has two containers; one has TCP ports set as range 80-85 and

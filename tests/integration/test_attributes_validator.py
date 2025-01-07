@@ -158,9 +158,11 @@ class TestAttributesValidator(unittest.TestCase):
                 len(instances_with_attribute), len(svc.cluster.container_instances)
             )
 
-            result = AttributesValidator(
-                service=svc.service, cluster=svc.cluster
-            ).validate()
+            result = AttributesValidator().validate(
+                service=svc.service,
+                cluster=svc.cluster,
+                container_instances=svc.cluster.container_instances,
+            )
 
             self.assertTrue(result.success)
             self.assertEqual(len(instances_with_attribute), len(result.valid_instances))
@@ -263,9 +265,11 @@ class TestAttributesValidator(unittest.TestCase):
                 len(instances_with_attribute), len(svc.cluster.container_instances)
             )
 
-            result = AttributesValidator(
-                service=svc.service, cluster=svc.cluster
-            ).validate()
+            result = AttributesValidator().validate(
+                service=svc.service,
+                cluster=svc.cluster,
+                container_instances=svc.cluster.container_instances,
+            )
 
             self.assertTrue(result.success)
             self.assertEqual(len(instances_with_attribute), len(result.valid_instances))
@@ -373,9 +377,12 @@ class TestAttributesValidator(unittest.TestCase):
             # assert that the number of instances with the attribute(s) is 0
             self.assertEqual(len(instances_with_attribute), 0)
 
-            # with self.assertRaisesRegex(MissingECSAttributeException, rf".*{attribute_name}.*") as abc:
             with self.assertRaises(MissingECSAttributeException) as context:
-                AttributesValidator(service=svc.service, cluster=svc.cluster).validate()
+                AttributesValidator().validate(
+                    service=svc.service,
+                    cluster=svc.cluster,
+                    container_instances=svc.cluster.container_instances,
+                )
 
             verbose_exception = context.exception.verbose_message
             attribute_name = instance_filter.replace("attribute:", "").split()[0]

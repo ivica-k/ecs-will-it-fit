@@ -85,7 +85,11 @@ class TestAttributesValidator(unittest.TestCase):
         )
         service.task_definition = task_definition
 
-        result = AttributesValidator(service=service, cluster=cluster).validate()
+        result = AttributesValidator().validate(
+            service=service,
+            cluster=cluster,
+            container_instances=cluster.container_instances,
+        )
 
         self.assertTrue(result.success)
 
@@ -165,7 +169,11 @@ class TestAttributesValidator(unittest.TestCase):
         service.task_definition = task_definition
 
         with self.assertRaises(MissingECSAttributeException):
-            AttributesValidator(service=service, cluster=cluster).validate()
+            AttributesValidator().validate(
+                service=service,
+                cluster=cluster,
+                container_instances=cluster.container_instances,
+            )
 
     @parameterized.expand(
         [
@@ -220,7 +228,11 @@ class TestAttributesValidator(unittest.TestCase):
         )
         service.task_definition = task_definition
 
-        result = AttributesValidator(service=service, cluster=cluster).validate()
+        result = AttributesValidator().validate(
+            service=service,
+            cluster=cluster,
+            container_instances=cluster.container_instances,
+        )
 
         self.assertTrue(result.success)
 
@@ -367,7 +379,11 @@ class TestAttributesValidator(unittest.TestCase):
         service.task_definition = task_definition
 
         with self.assertRaises(MissingECSAttributeException) as context:
-            AttributesValidator(service=service, cluster=cluster).validate()
+            AttributesValidator().validate(
+                service=service,
+                cluster=cluster,
+                container_instances=cluster.container_instances,
+            )
 
         verbose_exception = context.exception.verbose_message
         attribute_names = [elem.get("name") for elem in task_def_attributes]
@@ -449,7 +465,11 @@ class TestAttributesValidator(unittest.TestCase):
         service.task_definition = task_definition
 
         with self.assertRaises(MissingECSAttributeException) as context:
-            AttributesValidator(service=service, cluster=cluster).validate()
+            AttributesValidator().validate(
+                service=service,
+                cluster=cluster,
+                container_instances=cluster.container_instances,
+            )
 
         verbose_exception = context.exception.verbose_message
         attribute_names = [
@@ -570,7 +590,11 @@ class TestAttributesValidator(unittest.TestCase):
         )
         service.task_definition = task_definition
 
-        result = AttributesValidator(service=service, cluster=cluster).validate()
+        result = AttributesValidator().validate(
+            service=service,
+            cluster=cluster,
+            container_instances=cluster.container_instances,
+        )
 
         self.assertTrue(result.success)
 
@@ -656,7 +680,11 @@ class TestAttributesValidator(unittest.TestCase):
         service.task_definition = task_definition
 
         with self.assertRaises(MissingECSAttributeException) as context:
-            AttributesValidator(service=service, cluster=cluster).validate()
+            AttributesValidator().validate(
+                service=service,
+                cluster=cluster,
+                container_instances=cluster.container_instances,
+            )
 
         verbose_exception = context.exception.verbose_message
         attribute_names = [

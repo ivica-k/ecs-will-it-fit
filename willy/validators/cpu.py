@@ -1,17 +1,21 @@
+from typing import List
+
 from willy.exceptions import NotEnoughCPUException
-from willy.models import Cluster, ValidatorResult, Service
+from willy.models import Cluster, ValidatorResult, Service, ContainerInstance
+from willy.validators import BaseValidator
 
 
-class CPUValidator:
-    def __init__(self, service: Service, cluster: Cluster):
-        self.service: Service = service
-        self.cluster: Cluster = cluster
-
-    def validate(self) -> ValidatorResult:
+class CPUValidator(BaseValidator):
+    def validate(
+        self,
+        cluster: Cluster,
+        service: Service,
+        container_instances: List[ContainerInstance],
+    ) -> ValidatorResult:
         result: ValidatorResult = ValidatorResult()
 
-        for container_instance in self.cluster.container_instances:
-            if container_instance.cpu_remaining >= self.service.total_cpu_needed:
+        for container_instance in container_instances:
+            if container_instance.cpu_remaining >= service.total_cpu_needed:
                 result.valid_instances.append(container_instance)
             else:
                 result.invalid_instances.append(container_instance)
@@ -27,14 +31,14 @@ Container instances incapable of running the task definition:\n
                 table += f"{ins.instance_id:>15} | {ins.cpu_remaining:>15} | {ins.cpu_total: >15} |\n"
 
             result.verbose_message = (
-                f"Service '{self.service.name}' can not run on the '{self.cluster.name}' "
+                f"Service '{service.name}' can not run on the '{cluster.name}' "
                 f"cluster. There are no container instances that meet the hardware requirements of "
-                f"{self.service.total_cpu_needed} CPU units.\n{table}"
+                f"{service.total_cpu_needed} CPU units.\n{table}"
             )
             result.message = (
-                f"Service '{self.service.name}' can not run on the '{self.cluster.name}' "
-                f"cluster. Number of required CPU units is {self.service.total_cpu_needed} but the cluster has "
-                f"{self.cluster.cpu_remaining} CPU units available across {len(self.cluster.container_instances)} "
+                f"Service '{service.name}' can not run on the '{cluster.name}' "
+                f"cluster. Number of required CPU units is {service.total_cpu_needed} but the cluster has "
+                f"{cluster.cpu_remaining} CPU units available across {len(cluster.container_instances)} "
                 f"container instances."
             )
 
@@ -56,7 +60,7 @@ Container instances capable of running the service:\n
                 table += f"{ins.instance_id:>15} | {ins.cpu_remaining:>15} | {ins.cpu_total: >15} |\n"
             result.success = True
             result.message = (
-                f"Cluster '{self.cluster.name}' has enough CPU units to run containers from the '{self.service.name}'"
+                f"Cluster '{cluster.name}' has enough CPU units to run containers from the '{service.name}'"
                 f"service."
             )
             result.verbose_message = f"{table}"

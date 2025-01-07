@@ -9,6 +9,7 @@ from willy.models import (
     Service,
     Attribute,
 )
+from willy.validators import BaseValidator
 
 VERSION_REGEX = r"(.*?)(\d\.\d{1,})"
 SQUARE_BRACKETS_REGEX = r"[\[\]]"
@@ -85,25 +86,22 @@ def _split_attributes(attributes: List[Attribute]):
     return versioned_attributes, non_versioned_attributes, list_attributes
 
 
-class AttributesValidator:
-    def __init__(self, service: Service, cluster: Cluster):
-        self.service: Service = service
-        self.cluster: Cluster = cluster
-
+class AttributesValidator(BaseValidator):
+    def __init__(self):
         self.missing_attributes = []
         self.result: ValidatorResult = ValidatorResult()
 
-    def _raise_exception(self):
+    def _raise_exception(self, service: Service, cluster: Cluster):
         missing_attrs_str = f"""{f"{chr(10)}".join([str(elem) for elem in list(set(self.missing_attributes))])}"""
 
         self.result.verbose_message = (
-            f"Service '{self.service.name}' can not run on the '{self.cluster.name}' cluster. "
+            f"Service '{service.name}' can not run on the '{cluster.name}' cluster. "
             f"There are no container instances that have the attributes required by the task definition.\nMissing "
             f"attribute(s):\n\n{missing_attrs_str}"
         )
 
         self.result.message = (
-            f"Service '{self.service.name}' can not run on the '{self.cluster.name}' cluster. "
+            f"Service '{service.name}' can not run on the '{cluster.name}' cluster. "
             f"There are no container instances that have the attributes required by the task definition."
         )
 
@@ -170,6 +168,7 @@ class AttributesValidator:
         self,
         non_versioned_attributes: List[Attribute],
         container_instances: List[ContainerInstance],
+        service: Service,
     ):
         valid_instances = []
 
@@ -177,7 +176,7 @@ class AttributesValidator:
             # there's a chance that the list of attributes on the task def and the container instance are equal,
             # in which case the instance is considered valid.
             if (
-                self.service.task_definition.requires_attributes
+                service.task_definition.requires_attributes
                 == container_instance.attributes
             ):
                 valid_instances.append(container_instance)
@@ -208,24 +207,29 @@ class AttributesValidator:
 
         return valid_instances
 
-    def validate(self) -> ValidatorResult:
+    def validate(
+        self,
+        cluster: Cluster,
+        service: Service,
+        container_instances: List[ContainerInstance],
+    ) -> ValidatorResult:
         (
             versioned_attributes,
             non_versioned_attributes,
             list_attributes,
-        ) = _split_attributes(self.service.requires_attributes)
+        ) = _split_attributes(service.requires_attributes)
 
         # validate versioned attributes first because they are more likely to be missing/incorrect
         if versioned_attributes:
             valid_instances_with_versioned_attributes = (
                 self._validate_versioned_attributes(
-                    versioned_attributes, self.cluster.container_instances
+                    versioned_attributes, cluster.container_instances
                 )
             )
 
             # if there are versioned attributes required, but no instances have them, raise the exception
             if len(valid_instances_with_versioned_attributes) == 0:
-                self._raise_exception()
+                self._raise_exception(service=service, cluster=cluster)
             else:
                 self.result.valid_instances.extend(
                     valid_instances_with_versioned_attributes
@@ -235,13 +239,15 @@ class AttributesValidator:
         if non_versioned_attributes:
             valid_instances_with_non_versioned_attributes = (
                 self._validate_non_versioned_attributes(
-                    non_versioned_attributes, self.cluster.container_instances
+                    non_versioned_attributes,
+                    cluster.container_instances,
+                    service=service,
                 )
             )
 
             # if there are non-versioned attributes required, but no instances have them, raise the exception
             if len(valid_instances_with_non_versioned_attributes) == 0:
-                self._raise_exception()
+                self._raise_exception(service=service, cluster=cluster)
             else:
                 self.result.valid_instances.extend(
                     (
@@ -253,11 +259,11 @@ class AttributesValidator:
 
         if list_attributes:
             valid_instances_with_list_attributes = self._validate_list_attributes(
-                list_attributes, self.cluster.container_instances
+                list_attributes, cluster.container_instances
             )
 
             if len(valid_instances_with_list_attributes) == 0:
-                self._raise_exception()
+                self._raise_exception(service=service, cluster=cluster)
 
             else:
                 self.result.valid_instances.extend(
@@ -279,11 +285,11 @@ class AttributesValidator:
 
         self.result.success = True
         self.result.message = (
-            f"Service '{self.service.name}' can run on the '{self.cluster.name}' cluster. "
+            f"Service '{service.name}' can run on the '{cluster.name}' cluster. "
             f"At least one container instance has all the attributes required by the task definition."
         )
         self.result.verbose_message = (
-            f"Service '{self.service.name}' can run on the '{self.cluster.name}' cluster. "
+            f"Service '{service.name}' can run on the '{cluster.name}' cluster. "
             f"Container instances that have all the attributes required by the task definition:\n{table}"
         )
 

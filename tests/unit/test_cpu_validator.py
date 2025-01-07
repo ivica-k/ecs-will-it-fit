@@ -42,7 +42,11 @@ class TestCPUValidator(unittest.TestCase):
             desired_count=desired_count, task_definition=task_definition
         )
 
-        result = CPUValidator(service=service, cluster=cluster).validate()
+        result = CPUValidator().validate(
+            service=service,
+            cluster=cluster,
+            container_instances=cluster.container_instances,
+        )
 
         self.assertTrue(result.success)
 
@@ -76,7 +80,11 @@ class TestCPUValidator(unittest.TestCase):
         )
         service.task_definition = task_definition
 
-        result = CPUValidator(service=service, cluster=cluster).validate()
+        result = CPUValidator().validate(
+            service=service,
+            cluster=cluster,
+            container_instances=cluster.container_instances,
+        )
 
         self.assertTrue(result.success)
 
@@ -111,4 +119,8 @@ class TestCPUValidator(unittest.TestCase):
         service.task_definition = task_definition
 
         with self.assertRaises(NotEnoughCPUException):
-            CPUValidator(service=service, cluster=cluster).validate()
+            CPUValidator().validate(
+                service=service,
+                cluster=cluster,
+                container_instances=cluster.container_instances,
+            )

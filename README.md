@@ -9,7 +9,12 @@ the ECS scheduler performs while selecting suitable container instances for your
 
 <!-- TOC -->
 * [ecs-will-it-fit](#ecs-will-it-fit)
+  * [Installation](#installation)
   * [Usage examples](#usage-examples)
+      * [CPU units](#cpu-units)
+      * [Memory](#memory)
+      * [Ports](#ports)
+      * [Task placement constraints (attributes)](#task-placement-constraints-attributes)
   * [Why use willy?](#why-use-willy)
     * [Speed](#speed)
     * [Details](#details)
@@ -20,9 +25,153 @@ the ECS scheduler performs while selecting suitable container instances for your
     * [Task placement constraints](#task-placement-constraints)
 <!-- TOC -->
 
+## Installation
+
+Install from GitHub
+```shell
+pip install pip@git+https://github.com/ivica-k/ecs-will-it-fit
+```
+
 ## Usage examples
 
-TODO
+General help:
+
+```text
+$ willy -h
+usage: willy [-h] -c CLUSTER -s SERVICE [--verbose | --no-verbose | -V]
+
+Checks whether an ECS service can fit on an ECS (EC2) cluster.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CLUSTER, --cluster CLUSTER
+                        Name of the ECS cluster.
+  -s SERVICE, --service SERVICE
+                        Name of the ECS service.
+  --verbose, --no-verbose, -V
+                        Enable verbose output. Contains EC2 instance information and other details. (default: False)
+```
+
+#### CPU units
+
+Happy path, terse output:
+
+```text
+$ willy --service my-service --cluster my-cluster
+Service 'my-service' can be scheduled on the 'my-cluster' cluster.
+```
+
+Happy path, verbose output:
+
+```text
+$ willy --service my-service --cluster my-cluster --verbose
+Service 'my-service' can be scheduled on the 'my-cluster' cluster.
+
+Container instances on which service 'my-service' can be scheduled:
+
+        Instance ID |   CPU remaining |       CPU total | Memory remaining |    Memory total |
+------------------- | --------------- | --------------- | ---------------- | --------------- |
+i-abcdefgh123456789 |            1792 |            2048 |           15231  |           15743 |
+i-hgfedcba987654321 |            1792 |            2048 |           15231  |           15743 |
+i-hgfedcba123456789 |             512 |            2048 |            8575  |           15743 |
+```
+
+Unhappy path, terse output, not enough CPU units:
+
+```text
+$ willy -s my-service -c my-cluster --verbose
+Service 'my-service' can not run on the 'my-cluster' cluster. Number of required CPU units is 3072 but the cluster
+has 2048 CPU units available across 2 container instances.
+```
+
+Unhappy path, verbose output, not enough CPU units:
+
+```text
+$ willy -s my-service -c my-cluster --verbose
+Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that meet the hardware
+requirements of 3072 CPU units.
+
+Container instances incapable of running the service:
+
+        Instance ID |   CPU remaining |       CPU total | Memory remaining |    Memory total |
+------------------- | --------------- | --------------- | ---------------- | --------------- |
+i-abcdefgh123456789 |            1792 |            2048 |           15231  |           15743 |
+i-hgfedcba987654321 |            1792 |            2048 |           15231  |           15743 |
+i-hgfedcba123456789 |             512 |            2048 |            8575  |           15743 |
+```
+
+#### Memory
+
+Unhappy path, terse output, not enough memory:
+
+```text
+$ willy -s my-service -c my-cluster
+Service 'my-service' can not run on the 'my-cluster' cluster. Number of required memory units is 1024 but the
+cluster has 256 memory units available across 2 container instance(s).
+```
+
+Unhappy path, verbose output, not enough memory:
+
+```text
+$ willy -s my-service -c my-cluster --verbose
+Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that meet the
+hardware requirements of 1024 memory units.
+
+Container instances incapable of running the task definition:
+
+        Instance ID |   CPU remaining |       CPU total | Memory remaining |    Memory total |
+------------------- | --------------- | --------------- | ---------------- | --------------- |
+i-abcdefgh123456789 |            1792 |            2048 |             512  |           15743 |
+i-hgfedcba987654321 |            1792 |            2048 |             512  |           15743 |
+i-hgfedcba123456789 |             512 |            2048 |             512  |           15743 |
+```
+
+#### Ports
+
+Unhappy path, terse output, port(s) taken:
+
+```text
+$ willy -s my-service -c my-cluster
+Service 'my-service' can not run on the 'my-cluster' cluster. The service requires ports [21, 22] that are used on
+all container instances in the cluster.
+```
+
+Unhappy path, verbose output, port(s) taken:
+
+```text
+$ willy -s my-service -c my-cluster --verbose
+Service 'my-service' can not run on the 'my-cluster' cluster. The service requires ports [21, 22] that are used on
+all container instances in the cluster.
+
+Container instances incapable of running the task definition:
+
+        Instance ID | Used ports (TCP) |Used ports (UDP) |
+------------------- | ---------------- | --------------- |
+i-abcdefgh123456789 |           22, 53 |                 |
+i-hgfedcba987654321 |           22, 53 |                 |
+```
+
+#### Task placement constraints (attributes)
+
+Unhappy path, terse output, wrong instance type placement constraint:
+
+```text
+$ willy -s my-service -c my-cluster --verbose
+ Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that have the 
+attribute(s) required by the task definition.
+```
+
+Unhappy path, verbose output, wrong instance type placement constraint:
+
+```text
+$ willy -s my-service -c my-cluster --verbose
+Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that have the
+attribute(s) required by the task definition.
+
+Missing attribute(s):
+
+attribute:ecs.instance-type==t2.nano
+```
 
 ## Why use willy?
 

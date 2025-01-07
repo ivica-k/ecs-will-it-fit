@@ -1,18 +1,22 @@
+from typing import List
+
 from willy.exceptions import NoPortsAvailableException
-from willy.models import Service, Cluster, ValidatorResult
+from willy.models import Service, Cluster, ValidatorResult, ContainerInstance
+from willy.validators import BaseValidator
 
 
-class NetworkValidator:
-    def __init__(self, service: Service, cluster: Cluster):
-        self.service: Service = service
-        self.cluster: Cluster = cluster
-
-    def validate(self) -> ValidatorResult:
+class NetworkValidator(BaseValidator):
+    def validate(
+        self,
+        cluster: Cluster,
+        service: Service,
+        container_instances: List[ContainerInstance],
+    ) -> ValidatorResult:
         result: ValidatorResult = ValidatorResult()
 
-        task_def_ports = self.service.all_ports
-        a = 2
-        for container_instance in self.cluster.container_instances:
+        task_def_ports = service.all_ports
+
+        for container_instance in cluster.container_instances:
             free_host_ports = [
                 port
                 for port in task_def_ports
@@ -42,8 +46,8 @@ Container instances incapable of running the task definition:\n
                 )
 
             msg = (
-                f"Service '{self.service.name}' can not run on the '{self.cluster.name}' "
-                f"cluster. The service requires ports {self.service.all_ports} that are used on all "
+                f"Service '{service.name}' can not run on the '{cluster.name}' "
+                f"cluster. The service requires ports {service.all_ports} that are used on all "
                 f"container instances in the cluster."
             )
 

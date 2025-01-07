@@ -119,7 +119,11 @@ class TestCPUValidator(unittest.TestCase):
                 )
 
             # validate that the CPUValidator has the same result as the ECS scheduler - service can be scheduled
-            result = CPUValidator(service=svc.service, cluster=svc.cluster).validate()
+            result = CPUValidator().validate(
+                service=svc.service,
+                cluster=svc.cluster,
+                container_instances=svc.cluster.container_instances,
+            )
 
             self.assertTrue(result.success)
             self.assertTrue(len(result.valid_instances) > 0)
@@ -212,7 +216,11 @@ class TestCPUValidator(unittest.TestCase):
 
             # validate that the CPUValidator has the same result as the ECS scheduler - service can't be scheduled
             with self.assertRaises(NotEnoughCPUException):
-                CPUValidator(service=svc.service, cluster=svc.cluster).validate()
+                ().validate(
+                    service=svc.service,
+                    cluster=svc.cluster,
+                    container_instances=svc.cluster.container_instances,
+                )
 
             # clean up
             self.ecs_client.delete_service(

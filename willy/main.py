@@ -18,8 +18,7 @@ from willy.validators import (
 )
 
 
-# def will_it_fit(service: Service, cluster: Cluster):
-def will_it_fit(service: str, cluster: str, verbose: bool = False):
+def will_it_fit(service_name: str, cluster_name: str, verbose: bool = False):
     # red validacija https://aws.amazon.com/blogs/compute/amazon-ecs-task-placement/
     # cpu - ovde desired count
     # memory - ovde desired count
@@ -31,22 +30,26 @@ def will_it_fit(service: str, cluster: str, verbose: bool = False):
 
     ecs_client = boto3.client("ecs")
     ecs_service = ECSService(
-        ecs_client=ecs_client, cluster_name=cluster, service_name=service
+        ecs_client=ecs_client, cluster_name=cluster_name, service_name=service_name
     )
 
     validators = [CPUValidator, MemoryValidator, NetworkValidator, AttributesValidator]
-    rez: ValidatorResult = ValidatorResult()
+    result: ValidatorResult = ValidatorResult()
+    valid_instances = ecs_service.cluster.container_instances
 
     try:
         for validator in validators:
-            ecs_service.cluster.container_instances = [
-                elem
-                for elem in ecs_service.cluster.container_instances
-                if elem not in rez.invalid_instances
+            valid_instances = [
+                elem for elem in valid_instances if elem not in result.invalid_instances
             ]
-            rez = validator(ecs_service.service, ecs_service.cluster).validate()
 
-        message = f"Service '{service}' can be scheduled on the '{cluster}' cluster."
+            result = validator().validate(
+                cluster=ecs_service.cluster,
+                service=ecs_service.service,
+                container_instances=valid_instances,
+            )
+
+        message = f"Service '{service_name}' can be scheduled on the '{cluster_name}' cluster."
 
         if verbose:
             table = f"""
@@ -54,10 +57,10 @@ def will_it_fit(service: str, cluster: str, verbose: bool = False):
 {'-'*19:>19} | {'-'*15:>15} | {'-'*15:>15} | {'-'*16:>16} | {'-'*15:>15} |
 """
 
-            for ins in rez.valid_instances:
-                table += f"{ins.instance_id:>15} | {ins.cpu_remaining:>15} | {ins.cpu_total: >15} | {ins.memory_remaining:>15}  | {ins.memory_total: >15} |\n"
+            for instance in valid_instances:
+                table += f"{instance.instance_id:>15} | {instance.cpu_remaining:>15} | {instance.cpu_total: >15} | {instance.memory_remaining:>15}  | {instance.memory_total: >15} |\n"
 
-            message += f"\n\nContainer instances on which service '{service}' can be scheduled:\n{table}"
+            message += f"\n\nContainer instances on which service '{service_name}' can be scheduled:\n{table}"
 
         print(message)
 

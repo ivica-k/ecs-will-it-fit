@@ -126,9 +126,11 @@ class TestMemoryValidator(unittest.TestCase):
                 )  # give ECS time to free up resources after a service is deleted
 
             # validate that the MemoryValidator has the same result as the ECS scheduler - service can be scheduled
-            result = MemoryValidator(
-                service=svc.service, cluster=svc.cluster
-            ).validate()
+            result = MemoryValidator().validate(
+                service=svc.service,
+                cluster=svc.cluster,
+                container_instances=svc.cluster.container_instances,
+            )
 
             self.assertTrue(result.success)
             self.assertTrue(len(result.valid_instances) > 0)
@@ -210,7 +212,11 @@ class TestMemoryValidator(unittest.TestCase):
 
             # validate that the MemoryValidator has the same result as the ECS scheduler - service can't be scheduled
             with self.assertRaises(NotEnoughMemoryException):
-                MemoryValidator(service=svc.service, cluster=svc.cluster).validate()
+                MemoryValidator().validate(
+                    service=svc.service,
+                    cluster=svc.cluster,
+                    container_instances=svc.cluster.container_instances,
+                )
 
             # clean up
             self.ecs_client.delete_service(
