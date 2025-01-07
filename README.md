@@ -1,6 +1,10 @@
 # ecs-will-it-fit
 
-`ecs-will-it-fit`, or `willy` in short, is a CLI tool that helps you answer the question: "Will this ECS service fit on
+<p>
+  <img width="64" src="https://github.com/ivica-k/ecs-will-it-fit/blob/main/img/willy_512.png?raw=true" alt="Heeeeere's Willy!"/>
+</p>
+
+`willy` (short for `ecs-will-it-fit`) is a CLI tool that helps you answer the question: "Will this ECS service fit on
 my ECS cluster backed by EC2 instances?". It does so by mimicking<sup>[1](#mimicking)</sup> the selection process that
 the ECS scheduler performs while selecting suitable container instances for your service.
 
