@@ -21,8 +21,10 @@ the ECS scheduler performs while selecting suitable container instances for your
       * [Ports](#ports)
       * [Task placement constraints (attributes)](#task-placement-constraints-attributes)
   * [Why use willy?](#why-use-willy)
-    * [Speed](#speed)
-    * [Details](#details)
+    * [It's fast](#its-fast)
+    * [It has details](#it-has-details)
+      * [Missing hardware resources](#missing-hardware-resources)
+      * [Missing/incorrect attribute (VPC ID)](#missingincorrect-attribute-vpc-id)
   * [Implemented features](#implemented-features)
   * [Caveats and known limitations](#caveats-and-known-limitations)
     * [Mimicking](#mimicking)
@@ -204,7 +206,7 @@ attribute:ecs.instance-type==t2.nano
 
 ## Why use willy?
 
-### Speed
+### It's fast
 
 Simply put, `willy` sacrifices being 100% correct five seconds from now in favor of providing a quick answer _now_.
 
@@ -216,7 +218,33 @@ for details.
 service on the cluster _at that time_. Those tasks might fit on the cluster five seconds later, depending on the state
 of the cluster and `willy` can't predict that.
 
-### Details
+### It has details
+
+#### Missing hardware resources
+
+If an ECS deployment fails because of lack of CPU resources, the deployment event is :
+
+```text
+Service my-service was unable to place a task because no container instance met all of its requirements.
+The closest matching container-instance 48fccf62981f4fc2b53e62233a586fe8 has insufficient CPU units available.
+```
+
+`willy` provides more details with its `--verbose` flag:
+
+```text
+Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that meet the hardware
+requirements of 3072 CPU units.
+
+Container instances incapable of running the service:
+
+        Instance ID |   CPU remaining |       CPU total | Memory remaining |    Memory total |
+------------------- | --------------- | --------------- | ---------------- | --------------- |
+i-abcdefgh123456789 |            1792 |            2048 |           15231  |           15743 |
+i-hgfedcba987654321 |            1792 |            2048 |           15231  |           15743 |
+i-hgfedcba123456789 |             512 |            2048 |            8575  |           15743 |
+```
+
+#### Missing/incorrect attribute (VPC ID)
 
 If an ECS deployment fails because of a missing attribute, the deployment event will state something similar to:
 
@@ -224,14 +252,7 @@ If an ECS deployment fails because of a missing attribute, the deployment event 
 The closest matching container-instance is missing an attribute required by your task
 ```
 
-which lacks details.
-
-If an ECS deployment fails because of lack of CPU resources the deployment event does a better job at providing details:
-
-```text
-Service my-service was unable to place a task because no container instance met all of its requirements.
-The closest matching container-instance 48fccf62981f4fc2b53e62233a586fe8 has insufficient CPU units available.
-```
+which lacks important details, such as the required attribute's name and value.
 
 `willy` does it differently when reporting missing attributes:
 
