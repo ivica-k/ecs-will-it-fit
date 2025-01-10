@@ -14,6 +14,7 @@ the ECS scheduler performs while selecting suitable container instances for your
 <!-- TOC -->
 * [ecs-will-it-fit](#ecs-will-it-fit)
   * [Installation](#installation)
+    * [Authentication](#authentication)
   * [Usage examples](#usage-examples)
       * [CPU units](#cpu-units)
       * [Memory](#memory)
@@ -34,6 +35,30 @@ the ECS scheduler performs while selecting suitable container instances for your
 Install from GitHub
 ```shell
 pip install pip@git+https://github.com/ivica-k/ecs-will-it-fit
+```
+
+### Authentication
+
+`willy` supports the default [authentication mechanism of boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
+The read-only API calls it performs to AWS ECS require the following IAM permissions: 
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecs:DescribeClusters",
+                "ecs:ListContainerInstances",
+                "ecs:DescribeContainerInstances",
+                "ecs:DescribeServices",
+                "ecs:DescribeTaskDefinition"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
 ```
 
 ## Usage examples
