@@ -78,7 +78,7 @@ optional arguments:
   -s SERVICE, --service SERVICE
                         Name of the ECS service.
   --verbose, --no-verbose, -V
-                        Enable verbose output. Contains EC2 instance information and other details. (default: False)
+                        Enable verbose output, with EC2 instance information and other details. (default: False)
 ```
 
 #### CPU units

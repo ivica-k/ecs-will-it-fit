@@ -18,7 +18,7 @@ def _parse_args():
         required=False,
         action=argparse.BooleanOptionalAction,
         type=bool,
-        help="Enable verbose output. Contains EC2 instance information and other details.",
+        help="Enable verbose output, with EC2 instance information and other details.",
     )
 
     return parser.parse_args()
