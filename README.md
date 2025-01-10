@@ -85,14 +85,17 @@ optional arguments:
 
 #### CPU units
 
-Happy path, terse output:
+<details>
+  <summary>Enough CPU units, short</summary>
 
 ```text
 $ willy --service my-service --cluster my-cluster
 Service 'my-service' can be scheduled on the 'my-cluster' cluster.
 ```
+</details>
 
-Happy path, verbose output:
+<details>
+  <summary>Enough CPU units, verbose</summary>
 
 ```text
 $ willy --service my-service --cluster my-cluster --verbose
@@ -106,16 +109,20 @@ i-abcdefgh123456789 |            1792 |            2048 |           15231  |    
 i-hgfedcba987654321 |            1792 |            2048 |           15231  |           15743 |
 i-hgfedcba123456789 |             512 |            2048 |            8575  |           15743 |
 ```
+</details>
 
-Unhappy path, terse output, not enough CPU units:
+<details>
+  <summary>Not enough CPU units, short</summary>
 
 ```text
 $ willy -s my-service -c my-cluster --verbose
 Service 'my-service' can not run on the 'my-cluster' cluster. Number of required CPU units is 3072 but the cluster
 has 2048 CPU units available across 2 container instances.
 ```
+</details>
 
-Unhappy path, verbose output, not enough CPU units:
+<details>
+  <summary>Not enough CPU units, verbose</summary>
 
 ```text
 $ willy -s my-service -c my-cluster --verbose
@@ -130,18 +137,22 @@ i-abcdefgh123456789 |            1792 |            2048 |           15231  |    
 i-hgfedcba987654321 |            1792 |            2048 |           15231  |           15743 |
 i-hgfedcba123456789 |             512 |            2048 |            8575  |           15743 |
 ```
+</details>
 
 #### Memory
 
-Unhappy path, terse output, not enough memory:
+<details>
+  <summary>Not enough memory, short</summary>
 
 ```text
 $ willy -s my-service -c my-cluster
 Service 'my-service' can not run on the 'my-cluster' cluster. Number of required memory units is 1024 but the
 cluster has 256 memory units available across 2 container instance(s).
 ```
+</details>
 
-Unhappy path, verbose output, not enough memory:
+<details>
+  <summary>Not enough memory, verbose</summary>
 
 ```text
 $ willy -s my-service -c my-cluster --verbose
@@ -156,18 +167,22 @@ i-abcdefgh123456789 |            1792 |            2048 |             512  |    
 i-hgfedcba987654321 |            1792 |            2048 |             512  |           15743 |
 i-hgfedcba123456789 |             512 |            2048 |             512  |           15743 |
 ```
+</details>
 
 #### Ports
 
-Unhappy path, terse output, port(s) taken:
+<details>
+  <summary>Port(s) taken, short</summary>
 
 ```text
 $ willy -s my-service -c my-cluster
 Service 'my-service' can not run on the 'my-cluster' cluster. The service requires ports [21, 22] that are used on
 all container instances in the cluster.
 ```
+</details>
 
-Unhappy path, verbose output, port(s) taken:
+<details>
+  <summary>Port(s) taken, verbose</summary>
 
 ```text
 $ willy -s my-service -c my-cluster --verbose
@@ -181,18 +196,22 @@ Container instances incapable of running the task definition:
 i-abcdefgh123456789 |           22, 53 |                 |
 i-hgfedcba987654321 |           22, 53 |                 |
 ```
+</details>
 
 #### Task placement constraints (attributes)
 
-Unhappy path, terse output, wrong instance type placement constraint:
+<details>
+  <summary>Wrong instance type placement constraint, short</summary>
 
 ```text
 $ willy -s my-service -c my-cluster --verbose
  Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that have the 
 attribute(s) required by the task definition.
 ```
+</details>
 
-Unhappy path, verbose output, wrong instance type placement constraint:
+<details>
+  <summary>Wrong instance type placement constraint, verbose</summary>
 
 ```text
 $ willy -s my-service -c my-cluster --verbose
@@ -203,6 +222,7 @@ Missing attribute(s):
 
 attribute:ecs.instance-type==t2.nano
 ```
+</details>
 
 ## Why use willy?
 
