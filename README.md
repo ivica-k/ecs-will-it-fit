@@ -36,7 +36,7 @@ the ECS scheduler performs while selecting suitable container instances for your
 
 Install from GitHub
 ```shell
-pip install pip@git+https://github.com/ivica-k/ecs-will-it-fit
+pip install git+https://github.com/ivica-k/ecs-will-it-fit
 ```
 
 ### Authentication
