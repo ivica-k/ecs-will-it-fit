@@ -11,6 +11,9 @@ the ECS scheduler performs while selecting suitable container instances for your
 `willy` is useful only if your cluster does _not_ have [auto-scaling using capacity providers](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-auto-scaling.html) enabled
 (**it should**).
 
+> [!NOTE]  
+> This is a work-in-progress, alpha version. It may be incorrect, unfinished and its usage may change over time.
+
 <!-- TOC -->
 * [ecs-will-it-fit](#ecs-will-it-fit)
   * [Installation](#installation)
@@ -39,7 +42,7 @@ Install from GitHub
 pip install git+https://github.com/ivica-k/ecs-will-it-fit
 ```
 
-### Authentication
+### Authentication and authorization
 
 `willy` supports the default [authentication mechanism of boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 The read-only API calls it performs to AWS ECS require the following IAM permissions: 
