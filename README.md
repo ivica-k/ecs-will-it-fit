@@ -14,7 +14,7 @@ the ECS scheduler performs while selecting suitable container instances for your
 <!-- TOC -->
 * [ecs-will-it-fit](#ecs-will-it-fit)
   * [Installation](#installation)
-    * [Authentication](#authentication)
+    * [Authentication and authorization](#authentication-and-authorization)
   * [Usage examples](#usage-examples)
       * [CPU units](#cpu-units)
       * [Memory](#memory)
