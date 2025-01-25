@@ -96,13 +96,13 @@ class AttributesValidator(BaseValidator):
 
         self.result.verbose_message = (
             f"Service '{service.name}' can not run on the '{cluster.name}' cluster. "
-            f"There are no container instances that have the attributes required by the task definition.\nMissing "
+            f"There are no container instances that have the attributes required by the service.\nMissing "
             f"attribute(s):\n\n{missing_attrs_str}"
         )
 
         self.result.message = (
             f"Service '{service.name}' can not run on the '{cluster.name}' cluster. "
-            f"There are no container instances that have the attributes required by the task definition."
+            f"There are no container instances that have the attributes required by the service."
         )
 
         raise MissingECSAttributeException(
@@ -286,11 +286,11 @@ class AttributesValidator(BaseValidator):
         self.result.success = True
         self.result.message = (
             f"Service '{service.name}' can run on the '{cluster.name}' cluster. "
-            f"At least one container instance has all the attributes required by the task definition."
+            f"At least one container instance has all the attributes required by the service."
         )
         self.result.verbose_message = (
             f"Service '{service.name}' can run on the '{cluster.name}' cluster. "
-            f"Container instances that have all the attributes required by the task definition:\n{table}"
+            f"Container instances that have all the attributes required by the service:\n{table}"
         )
 
         return self.result

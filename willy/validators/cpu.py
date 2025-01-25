@@ -22,7 +22,7 @@ class CPUValidator(BaseValidator):
 
         if len(result.valid_instances) == 0:
             table = f"""
-Container instances incapable of running the task definition:\n
+Container instances incapable of running the service:\n
 {'Instance ID':>15} | {'CPU remaining':>15} | {'CPU total':>15} |
 {'-'*53}
 """
@@ -60,11 +60,12 @@ Container instances capable of running the service:\n
                 table += f"{ins.instance_id:>15} | {ins.cpu_remaining:>15} | {ins.cpu_total: >15} |\n"
             result.success = True
             result.message = (
-                f"Cluster '{cluster.name}' has enough CPU units to run containers from the '{service.name}'"
-                f"service."
+                f"Cluster '{cluster.name}' has enough CPU units to run containers from the '{service.name}' service."
             )
-            result.verbose_message = f"{table}"
-
-            # TODO: missing a verbose message
+            result.verbose_message = (
+                f"Cluster '{cluster.name}' has enough CPU units to run containers from the '{service.name}' service.\n"
+                f"The following container instances meet the hardware requirements of "
+                f"{service.total_cpu_needed} CPU units.\n{table}"
+            )
 
         return result

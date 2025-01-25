@@ -33,7 +33,7 @@ class NetworkValidator(BaseValidator):
             result.success = False
 
             table = f"""
-Container instances incapable of running the task definition:\n
+Container instances incapable of running the service:\n
 {'Instance ID':>15} | {'Used ports (TCP)':>15} | {'Used ports (UDP)':>15} |
 {'-' * 53}
 """
@@ -54,6 +54,9 @@ Container instances incapable of running the task definition:\n
             result.message = msg
             result.verbose_message = f"{msg}\n{table}"
 
+            print(result.message)
+            print(result.verbose_message)
+
             raise NoPortsAvailableException(
                 message=result.message,
                 verbose_message=result.verbose_message,
@@ -61,6 +64,27 @@ Container instances incapable of running the task definition:\n
                 invalid_instances=result.invalid_instances,
             )
         else:
+            table = f"""
+Container instances capable of running the service:\n
+{'Instance ID':>15} | {'Used ports (TCP)':>15} | {'Used ports (UDP)':>15} |
+{'-' * 53}
+"""
+
+            for ins in result.valid_instances:
+                ports_tcp = ", ".join([str(elem) for elem in ins.ports_tcp])
+                ports_udp = ", ".join([str(elem) for elem in ins.ports_udp])
+                table += (
+                    f"{ins.instance_id:>15} | {ports_tcp:>15} | {ports_udp: >15} |\n"
+                )
+
             result.success = True
+            result.message = (
+                f"Cluster '{cluster.name}' has all required ports to run containers from the '{service.name}' service."
+            )
+            result.verbose_message = (
+                f"Cluster '{cluster.name}' has all required ports to run containers from the '{service.name}' service.\n"
+                f"The following container instances have the following ports {service.all_ports} available:"
+                f"\n{table}"
+            )
 
         return result

@@ -93,7 +93,7 @@ optional arguments:
 
 ```text
 $ willy --service my-service --cluster my-cluster
-Service 'my-service' can be scheduled on the 'my-cluster' cluster.
+Cluster 'my-cluster' has enough CPU units to run containers from the 'my-service' service.
 ```
 </details>
 
@@ -102,9 +102,10 @@ Service 'my-service' can be scheduled on the 'my-cluster' cluster.
 
 ```text
 $ willy --service my-service --cluster my-cluster --verbose
-Service 'my-service' can be scheduled on the 'my-cluster' cluster.
+Cluster 'my-cluster' has enough CPU units to run containers from the 'my-service' service.
+The following container instances meet the hardware requirements of 512 CPU units.
 
-Container instances on which service 'my-service' can be scheduled:
+Container instances capable of running the service:
 
         Instance ID |   CPU remaining |       CPU total | Memory remaining |    Memory total |
 ------------------- | --------------- | --------------- | ---------------- | --------------- |
@@ -162,7 +163,7 @@ $ willy -s my-service -c my-cluster --verbose
 Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that meet the
 hardware requirements of 1024 memory units.
 
-Container instances incapable of running the task definition:
+Container instances incapable of running the service:
 
         Instance ID |   CPU remaining |       CPU total | Memory remaining |    Memory total |
 ------------------- | --------------- | --------------- | ---------------- | --------------- |
@@ -189,10 +190,10 @@ all container instances in the cluster.
 
 ```text
 $ willy -s my-service -c my-cluster --verbose
-Service 'my-service' can not run on the 'my-cluster' cluster. The service requires ports [21, 22] that are used on
-all container instances in the cluster.
+Service 'my-service' can not run on the 'my-cluster' cluster. The service requires ports [22, 53] that are used on all
+container instances in the cluster.
 
-Container instances incapable of running the task definition:
+Container instances incapable of running the service:
 
         Instance ID | Used ports (TCP) |Used ports (UDP) |
 ------------------- | ---------------- | --------------- |
@@ -209,7 +210,7 @@ i-hgfedcba987654321 |           22, 53 |                 |
 ```text
 $ willy -s my-service -c my-cluster --verbose
  Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that have the 
-attribute(s) required by the task definition.
+attribute(s) required by the service.
 ```
 </details>
 
@@ -219,7 +220,7 @@ attribute(s) required by the task definition.
 ```text
 $ willy -s my-service -c my-cluster --verbose
 Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that have the
-attribute(s) required by the task definition.
+attribute(s) required by the service.
 
 Missing attribute(s):
 
@@ -281,7 +282,7 @@ which lacks important details, such as the required attribute's name and value.
 
 ```text
 Service 'my-service' can not run on the 'my-cluster' cluster. There are no container instances that have the attributes
-required by the task definition. Attribute(s) missing or incorrect on the container instance:
+required by the service. Attribute(s) missing or incorrect on the container instance:
 
 'ecs.vpc-id' with value 'vpc-a1b2c3d4e5f6'"
 ```
@@ -293,7 +294,7 @@ Task placement process on Amazon ECS - [source](https://docs.aws.amazon.com/Amaz
 ```
 When Amazon ECS places tasks, it uses the following process to select container instances:
 
-1. Identify the container instances that satisfy the CPU, GPU, memory, and port requirements in the task definition.
+1. Identify the container instances that satisfy the CPU, GPU, memory, and port requirements in the service.
 2. Identify the container instances that satisfy the task placement constraints.
 3. Identify the container instances that satisfy the task placement strategies.
 4. Select the container instances for task placement.
